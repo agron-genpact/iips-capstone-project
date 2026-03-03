@@ -1,0 +1,28 @@
+{
+  "grn_number": "GRN-2001",
+  "grn_date": "2025-01-12",
+  "po_number": "PO-1001",
+  "vendor_name": "Acme Corp",
+  "vendor_id": "V001",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Widget Type A",
+      "quantity_received": 100,
+      "unit": "EA"
+    },
+    {
+      "line_number": 2,
+      "description": "Widget Type B",
+      "quantity_received": 50,
+      "unit": "EA"
+    },
+    {
+      "line_number": 3,
+      "description": "Packaging Materials",
+      "quantity_received": 20,
+      "unit": "BOX"
+    }
+  ],
+  "status": "completed"
+}
