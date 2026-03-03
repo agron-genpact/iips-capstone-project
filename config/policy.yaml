@@ -1,0 +1,48 @@
+approval_thresholds:
+  auto_approve_max: 5000.00        # Invoices ≤ this amount can be auto-approved
+  manager_approval_max: 50000.00   # Invoices ≤ this require manager approval
+  director_approval_above: 50000.00 # Invoices > this require director approval
+
+tolerance:
+  quantity_percent: 5.0   # Allowed qty variance (%)
+  price_percent: 2.0      # Allowed unit price variance (%)
+  total_percent: 1.0      # Allowed total amount variance (%)
+  absolute_max: 50.00     # Max absolute $ variance allowed regardless of %
+
+matching:
+  require_grn_for_goods: true      # 3-way match required for goods invoices
+  require_grn_for_services: false  # Services can be 2-way matched
+  po_required: true                # PO reference required by default
+  non_po_routing: "manager"        # Route non-PO invoices to manager
+
+compliance:
+  tax_validation_enabled: true
+  default_tax_rate: 18.0           # Default expected VAT/tax rate (%)
+  tax_rate_tolerance: 0.5          # Allowed deviation in tax rate (%)
+  require_valid_vat_id: true
+  allowed_currencies: ["USD", "EUR", "GBP", "CHF"]
+  base_currency: "USD"
+
+duplicate_detection:
+  enabled: true
+  lookback_days: 90                # Check for duplicates within this window
+  similarity_threshold: 0.85       # Fuzzy match threshold (0-1)
+
+anomaly_detection:
+  enabled: true
+  bank_change_lookback_days: 30    # Flag if bank changed within this period
+  round_amount_flag: true          # Flag suspiciously round amounts
+  just_under_threshold_percent: 5.0 # Flag amounts within this % below approval thresholds
+
+vendor:
+  fuzzy_match_threshold: 80        # Min score (0-100) for vendor name matching
+  require_master_data_match: true  # Must resolve to known vendor
+  flag_new_vendors: true           # Flag vendors not in master data
+
+ocr:
+  min_confidence: 0.7              # Minimum OCR confidence to accept a field
+  low_confidence_action: "flag"    # "flag" or "reject"
+
+privacy:
+  mask_bank_details_in_logs: true
+  mask_tax_ids_in_logs: true
