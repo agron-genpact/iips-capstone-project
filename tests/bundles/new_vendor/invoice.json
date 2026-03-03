@@ -1,0 +1,23 @@
+{
+  "invoice_number": "INV-010",
+  "invoice_date": "2025-03-20",
+  "due_date": "2025-04-19",
+  "vendor_name": "Unknown Supplier XYZ",
+  "vendor_id": "V999",
+  "po_number": "PO-1010",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Custom Fabrication Work",
+      "quantity": 1,
+      "unit": "LOT",
+      "unit_price": 12000.00,
+      "amount": 12000.00
+    }
+  ],
+  "subtotal": 12000.00,
+  "tax_rate": 18,
+  "tax_amount": 2160.00,
+  "total_amount": 14160.00
+}

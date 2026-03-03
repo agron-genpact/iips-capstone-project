@@ -1,0 +1,10 @@
+[
+  {
+    "vendor_id": "V001",
+    "vendor_name": "Acme Corp",
+    "tax_id": "US12-3456789",
+    "bank_account": "BANK-001-ACME",
+    "bank_account_last_changed": "2025-01-10",
+    "status": "active"
+  }
+]
