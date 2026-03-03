@@ -1,0 +1,7 @@
+metadata:
+  scenario: "Header total does not equal sum of line items - arithmetic mismatch"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: vendor_master.json
+    type: vendor_master
