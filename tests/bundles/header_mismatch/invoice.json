@@ -1,0 +1,31 @@
+{
+  "invoice_number": "INV-005",
+  "invoice_date": "2025-02-20",
+  "due_date": "2025-03-22",
+  "vendor_name": "Epsilon Services",
+  "vendor_id": "V005",
+  "po_number": "PO-1005",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Consulting Services - Phase 1",
+      "quantity": 40,
+      "unit": "HR",
+      "unit_price": 75.00,
+      "amount": 3000.00
+    },
+    {
+      "line_number": 2,
+      "description": "Consulting Services - Phase 2",
+      "quantity": 20,
+      "unit": "HR",
+      "unit_price": 100.00,
+      "amount": 2000.00
+    }
+  ],
+  "subtotal": 5500.00,
+  "tax_rate": 18,
+  "tax_amount": 990.00,
+  "total_amount": 6490.00
+}
