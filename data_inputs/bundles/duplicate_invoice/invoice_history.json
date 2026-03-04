@@ -1,0 +1,11 @@
+[
+  {
+    "invoice_number": "INV-006",
+    "invoice_date": "2025-02-20",
+    "vendor_name": "Zeta Manufacturing",
+    "vendor_id": "V006",
+    "total_amount": 8850.00,
+    "status": "posted",
+    "posted_date": "2025-02-22"
+  }
+]
