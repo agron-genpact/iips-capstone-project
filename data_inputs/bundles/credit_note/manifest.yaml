@@ -1,0 +1,7 @@
+metadata:
+  scenario: "Credit note referencing a prior invoice with negative amounts"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: vendor_master.json
+    type: vendor_master

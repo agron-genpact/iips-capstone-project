@@ -1,0 +1,23 @@
+{
+  "invoice_number": "INV-006",
+  "invoice_date": "2025-03-01",
+  "due_date": "2025-03-31",
+  "vendor_name": "Zeta Manufacturing",
+  "vendor_id": "V006",
+  "po_number": "PO-1006",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Aluminum Sheets 2mm",
+      "quantity": 500,
+      "unit": "EA",
+      "unit_price": 15.00,
+      "amount": 7500.00
+    }
+  ],
+  "subtotal": 7500.00,
+  "tax_rate": 18,
+  "tax_amount": 1350.00,
+  "total_amount": 8850.00
+}

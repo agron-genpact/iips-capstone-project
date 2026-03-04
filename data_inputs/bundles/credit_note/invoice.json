@@ -1,0 +1,32 @@
+{
+  "invoice_number": "CN-001",
+  "invoice_date": "2025-03-05",
+  "due_date": "2025-04-04",
+  "vendor_name": "Acme Corp",
+  "vendor_id": "V001",
+  "document_type": "credit_note",
+  "reference_invoice": "INV-001",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Widget Type A - Returned defective units",
+      "quantity": -10,
+      "unit": "EA",
+      "unit_price": 25.00,
+      "amount": -250.00
+    },
+    {
+      "line_number": 2,
+      "description": "Widget Type B - Pricing adjustment",
+      "quantity": -5,
+      "unit": "EA",
+      "unit_price": 30.00,
+      "amount": -150.00
+    }
+  ],
+  "subtotal": -400.00,
+  "tax_rate": 18,
+  "tax_amount": -72.00,
+  "total_amount": -472.00
+}

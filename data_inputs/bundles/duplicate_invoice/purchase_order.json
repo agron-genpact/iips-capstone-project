@@ -1,0 +1,19 @@
+{
+  "po_number": "PO-1006",
+  "po_date": "2025-02-15",
+  "vendor_name": "Zeta Manufacturing",
+  "vendor_id": "V006",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Aluminum Sheets 2mm",
+      "quantity": 500,
+      "unit": "EA",
+      "unit_price": 15.00,
+      "amount": 7500.00
+    }
+  ],
+  "subtotal": 7500.00,
+  "status": "approved"
+}

@@ -1,0 +1,11 @@
+metadata:
+  scenario: "Duplicate invoice - same invoice number, vendor, and amount already exists in history"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: purchase_order.json
+    type: purchase_order
+  - file: vendor_master.json
+    type: vendor_master
+  - file: invoice_history.json
+    type: unknown
