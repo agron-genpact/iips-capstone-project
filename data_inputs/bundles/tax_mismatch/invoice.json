@@ -1,0 +1,33 @@
+{
+  "invoice_number": "INV-009",
+  "invoice_date": "2025-03-15",
+  "due_date": "2025-04-14",
+  "vendor_name": "Theta Supplies",
+  "vendor_id": "V009",
+  "po_number": "PO-1009",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Office Furniture - Desk",
+      "quantity": 10,
+      "unit": "EA",
+      "unit_price": 350.00,
+      "amount": 3500.00,
+      "tax_rate": 25
+    },
+    {
+      "line_number": 2,
+      "description": "Office Furniture - Chair",
+      "quantity": 10,
+      "unit": "EA",
+      "unit_price": 250.00,
+      "amount": 2500.00,
+      "tax_rate": 25
+    }
+  ],
+  "subtotal": 6000.00,
+  "tax_rate": 25,
+  "tax_amount": 1500.00,
+  "total_amount": 7500.00
+}
