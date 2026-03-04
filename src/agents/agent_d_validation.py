@@ -1,8 +1,3 @@
-"""
-Agent D – Validation & Normalization
-Verifies mandatory fields, normalizes formats, and detects calculation errors.
-"""
-
 from __future__ import annotations
 
 import re
