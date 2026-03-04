@@ -1,0 +1,27 @@
+{
+  "po_number": "PO-1008",
+  "po_date": "2025-02-25",
+  "vendor_name": "Sakura Electronics",
+  "vendor_id": "V008",
+  "currency": "JPY",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Circuit Board Assembly Type X",
+      "quantity": 200,
+      "unit": "EA",
+      "unit_price": 5000,
+      "amount": 1000000
+    },
+    {
+      "line_number": 2,
+      "description": "LED Display Module",
+      "quantity": 100,
+      "unit": "EA",
+      "unit_price": 8000,
+      "amount": 800000
+    }
+  ],
+  "subtotal": 1800000,
+  "status": "approved"
+}

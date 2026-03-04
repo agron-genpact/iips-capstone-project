@@ -1,0 +1,9 @@
+metadata:
+  scenario: "Multi-currency invoice in JPY - not in default allowed currencies (USD,EUR,GBP,CHF)"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: purchase_order.json
+    type: purchase_order
+  - file: vendor_master.json
+    type: vendor_master

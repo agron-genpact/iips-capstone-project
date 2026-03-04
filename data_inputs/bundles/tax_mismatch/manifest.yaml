@@ -1,0 +1,9 @@
+metadata:
+  scenario: "Tax rate mismatch vs jurisdiction rules - invoice has 25% but expected 18%"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: tax_rules.json
+    type: tax_rules
+  - file: vendor_master.json
+    type: vendor_master

@@ -1,0 +1,15 @@
+{
+  "jurisdiction": "US-DEFAULT",
+  "default_rate": 18,
+  "rates": [
+    {
+      "category": "goods",
+      "rate": 18
+    },
+    {
+      "category": "services",
+      "rate": 18
+    }
+  ],
+  "effective_date": "2024-01-01"
+}
