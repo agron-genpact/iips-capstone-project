@@ -1,0 +1,11 @@
+# Base
+pyyaml>=6.0
+pydantic>=2.0
+
+# OCR & PDF
+pdfplumber>=0.10
+Pillow>=10.0
+pytesseract>=0.3
+
+# Fuzzy matching
+rapidfuzz>=3.0

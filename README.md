@@ -47,3 +47,17 @@ You should see `(.venv)` at the start of your terminal prompt.
 ```bash
 deactivate
 ```
+
+## Install Python Requirements
+
+Install project dependencies from `requirements.txt`:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## Tesseract OCR Engine (Required for Image OCR)
+
+Installing `pytesseract` with pip is not enough by itself. You must also install the Tesseract system executable.
+
