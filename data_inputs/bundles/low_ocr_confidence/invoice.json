@@ -1,0 +1,32 @@
+{
+  "invoice_number": "INV-012",
+  "invoice_date": null,
+  "due_date": null,
+  "vendor_name": "Kappa Indu",
+  "vendor_id": null,
+  "po_number": null,
+  "currency": null,
+  "ocr_confidence": 0.42,
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": null,
+      "quantity": null,
+      "unit": null,
+      "unit_price": null,
+      "amount": 1200.00
+    },
+    {
+      "line_number": 2,
+      "description": "Misc parts",
+      "quantity": 5,
+      "unit": "EA",
+      "unit_price": null,
+      "amount": null
+    }
+  ],
+  "subtotal": null,
+  "tax_rate": null,
+  "tax_amount": null,
+  "total_amount": 1500.00
+}

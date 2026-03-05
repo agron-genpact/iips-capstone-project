@@ -1,0 +1,19 @@
+{
+  "po_number": "PO-1014",
+  "po_date": "2025-03-15",
+  "vendor_name": "Mu Logistics",
+  "vendor_id": "V014",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Copper Wire Spools 500m",
+      "quantity": 100,
+      "unit": "EA",
+      "unit_price": 85.00,
+      "amount": 8500.00
+    }
+  ],
+  "subtotal": 8500.00,
+  "status": "approved"
+}

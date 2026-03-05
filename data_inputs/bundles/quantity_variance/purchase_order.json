@@ -1,0 +1,27 @@
+{
+  "po_number": "PO-1003",
+  "po_date": "2025-01-25",
+  "vendor_name": "Gamma LLC",
+  "vendor_id": "V003",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Steel Rods 10mm",
+      "quantity": 100,
+      "unit": "EA",
+      "unit_price": 45.00,
+      "amount": 4500.00
+    },
+    {
+      "line_number": 2,
+      "description": "Steel Plates 5mm",
+      "quantity": 50,
+      "unit": "EA",
+      "unit_price": 80.00,
+      "amount": 4000.00
+    }
+  ],
+  "subtotal": 8500.00,
+  "status": "approved"
+}

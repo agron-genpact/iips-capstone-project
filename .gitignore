@@ -6,6 +6,7 @@ __pycache__/
 .idea
 venv/
 runs/*/
+test_runs/
 output/
 *.egg-info/
 dist/

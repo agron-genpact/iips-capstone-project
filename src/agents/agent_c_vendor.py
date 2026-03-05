@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -183,7 +183,7 @@ class VendorResolutionAgent(BaseAgent):
             if vendor.bank_account_last_changed:
                 try:
                     change_date = datetime.fromisoformat(vendor.bank_account_last_changed)
-                    threshold = datetime.utcnow() - timedelta(
+                    threshold = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(
                         days=self.policy.anomaly_bank_change_days
                     )
                     if change_date > threshold:

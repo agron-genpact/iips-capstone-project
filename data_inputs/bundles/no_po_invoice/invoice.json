@@ -1,0 +1,30 @@
+{
+  "invoice_number": "INV-013",
+  "invoice_date": "2025-04-01",
+  "due_date": "2025-05-01",
+  "vendor_name": "Lambda Consulting",
+  "vendor_id": "V013",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Strategic Advisory Services - Q1",
+      "quantity": 1,
+      "unit": "LOT",
+      "unit_price": 5000.00,
+      "amount": 5000.00
+    },
+    {
+      "line_number": 2,
+      "description": "Market Research Report",
+      "quantity": 1,
+      "unit": "EA",
+      "unit_price": 2500.00,
+      "amount": 2500.00
+    }
+  ],
+  "subtotal": 7500.00,
+  "tax_rate": 0,
+  "tax_amount": 0.00,
+  "total_amount": 7500.00
+}

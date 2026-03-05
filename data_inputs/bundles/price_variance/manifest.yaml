@@ -1,0 +1,11 @@
+metadata:
+  scenario: "Price variance beyond tolerance (>2%) - invoice unit price exceeds PO by 5%"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: purchase_order.json
+    type: purchase_order
+  - file: grn.json
+    type: goods_receipt_note
+  - file: vendor_master.json
+    type: vendor_master

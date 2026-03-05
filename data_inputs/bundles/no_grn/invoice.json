@@ -1,0 +1,31 @@
+{
+  "invoice_number": "INV-002",
+  "invoice_date": "2025-02-01",
+  "due_date": "2025-03-03",
+  "vendor_name": "Beta Industries",
+  "vendor_id": "V002",
+  "po_number": "PO-1002",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Industrial Bearings",
+      "quantity": 200,
+      "unit": "EA",
+      "unit_price": 12.00,
+      "amount": 2400.00
+    },
+    {
+      "line_number": 2,
+      "description": "Lubricant Drums",
+      "quantity": 10,
+      "unit": "DRUM",
+      "unit_price": 80.00,
+      "amount": 800.00
+    }
+  ],
+  "subtotal": 3200.00,
+  "tax_rate": 18,
+  "tax_amount": 576.00,
+  "total_amount": 3776.00
+}

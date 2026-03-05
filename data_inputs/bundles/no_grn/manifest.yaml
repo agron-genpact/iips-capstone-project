@@ -1,0 +1,9 @@
+metadata:
+  scenario: "PO match but no GRN - route for receipt confirmation"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: purchase_order.json
+    type: purchase_order
+  - file: vendor_master.json
+    type: vendor_master

@@ -1,0 +1,23 @@
+{
+  "invoice_number": "INV-004",
+  "invoice_date": "2025-02-15",
+  "due_date": "2025-03-17",
+  "vendor_name": "Delta Co",
+  "vendor_id": "V004",
+  "po_number": "PO-1004",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Hydraulic Pump Assembly",
+      "quantity": 50,
+      "unit": "EA",
+      "unit_price": 105.00,
+      "amount": 5250.00
+    }
+  ],
+  "subtotal": 5250.00,
+  "tax_rate": 18,
+  "tax_amount": 945.00,
+  "total_amount": 6195.00
+}

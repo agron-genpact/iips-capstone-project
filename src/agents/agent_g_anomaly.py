@@ -194,10 +194,10 @@ class AnomalyDetectionAgent(BaseAgent):
 
         # Check for future-dated invoices
         if invoice.invoice_date:
-            from datetime import datetime
+            from datetime import datetime, timezone
             try:
                 inv_date = datetime.fromisoformat(invoice.invoice_date.replace("/", "-"))
-                if inv_date > datetime.utcnow():
+                if inv_date > datetime.now(timezone.utc).replace(tzinfo=None):
                     self.add_finding(Finding(
                         agent=self.name,
                         category=ExceptionCategory.ANOMALY,

@@ -1,0 +1,7 @@
+metadata:
+  scenario: "Invoice with no purchase order - non-PO invoice requiring special approval"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: vendor_master.json
+    type: vendor_master
