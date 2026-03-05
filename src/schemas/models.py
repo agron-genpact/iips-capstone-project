@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -130,7 +130,7 @@ class DocumentEntry(BaseModel):
 
 class ContextPacket(BaseModel):
     run_id: str = Field(default_factory=lambda: str(uuid.uuid4())[:12])
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     bundle_path: str
     documents: list[DocumentEntry] = Field(default_factory=list)
     vendor_candidates: list[str] = Field(default_factory=list)

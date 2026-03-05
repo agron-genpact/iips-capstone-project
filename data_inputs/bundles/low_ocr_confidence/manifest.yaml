@@ -1,0 +1,7 @@
+metadata:
+  scenario: "Low OCR confidence - many fields missing or null simulating poor extraction quality"
+files:
+  - file: invoice.json
+    type: invoice
+  - file: vendor_master.json
+    type: vendor_master

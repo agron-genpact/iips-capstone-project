@@ -1,0 +1,28 @@
+{
+  "grn_number": "GRN-2015",
+  "grn_date": "2025-04-08",
+  "po_number": "PO-1015",
+  "vendor_name": "Nu Office Supplies",
+  "vendor_id": "V015",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Printer Paper A4 - 10 Reams",
+      "quantity_received": 10,
+      "unit": "PKG"
+    },
+    {
+      "line_number": 2,
+      "description": "Ballpoint Pens - Box of 50",
+      "quantity_received": 5,
+      "unit": "BOX"
+    },
+    {
+      "line_number": 3,
+      "description": "Stapler Heavy Duty",
+      "quantity_received": 2,
+      "unit": "EA"
+    }
+  ],
+  "status": "completed"
+}

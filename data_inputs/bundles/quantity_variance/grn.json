@@ -1,0 +1,22 @@
+{
+  "grn_number": "GRN-2003",
+  "grn_date": "2025-02-05",
+  "po_number": "PO-1003",
+  "vendor_name": "Gamma LLC",
+  "vendor_id": "V003",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Steel Rods 10mm",
+      "quantity_received": 100,
+      "unit": "EA"
+    },
+    {
+      "line_number": 2,
+      "description": "Steel Plates 5mm",
+      "quantity_received": 50,
+      "unit": "EA"
+    }
+  ],
+  "status": "completed"
+}

@@ -1,0 +1,19 @@
+{
+  "po_number": "PO-1004",
+  "po_date": "2025-02-01",
+  "vendor_name": "Delta Co",
+  "vendor_id": "V004",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Hydraulic Pump Assembly",
+      "quantity": 50,
+      "unit": "EA",
+      "unit_price": 100.00,
+      "amount": 5000.00
+    }
+  ],
+  "subtotal": 5000.00,
+  "status": "approved"
+}

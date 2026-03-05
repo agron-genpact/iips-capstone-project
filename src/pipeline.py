@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -37,7 +37,7 @@ class Pipeline:
 
     def run(self) -> dict[str, Any]:
         """Execute the full pipeline and return the final context."""
-        start_time = datetime.utcnow().isoformat()
+        start_time = datetime.now(timezone.utc).isoformat()
 
         # Initialize context
         context: dict[str, Any] = {

@@ -1,0 +1,45 @@
+{
+  "invoice_number": "INV-015",
+  "invoice_date": "2025-04-10",
+  "due_date": "2025-05-10",
+  "vendor_name": "Nu Office Supplies",
+  "vendor_id": "V015",
+  "vendor_tax_id": "US15-8889999",
+  "po_number": "PO-1015",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Printer Paper A4 - 10 Reams",
+      "quantity": 10,
+      "unit": "PKG",
+      "unit_price": 12.00,
+      "amount": 120.00,
+      "tax_rate": 18.0,
+      "tax_amount": 21.60
+    },
+    {
+      "line_number": 2,
+      "description": "Ballpoint Pens - Box of 50",
+      "quantity": 5,
+      "unit": "BOX",
+      "unit_price": 18.00,
+      "amount": 90.00,
+      "tax_rate": 18.0,
+      "tax_amount": 16.20
+    },
+    {
+      "line_number": 3,
+      "description": "Stapler Heavy Duty",
+      "quantity": 2,
+      "unit": "EA",
+      "unit_price": 20.00,
+      "amount": 40.00,
+      "tax_rate": 18.0,
+      "tax_amount": 7.20
+    }
+  ],
+  "subtotal": 250.00,
+  "tax_amount": 45.00,
+  "total_amount": 295.00
+}

@@ -1,0 +1,35 @@
+{
+  "po_number": "PO-1015",
+  "po_date": "2025-04-01",
+  "vendor_name": "Nu Office Supplies",
+  "vendor_id": "V015",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Printer Paper A4 - 10 Reams",
+      "quantity": 10,
+      "unit": "PKG",
+      "unit_price": 12.00,
+      "amount": 120.00
+    },
+    {
+      "line_number": 2,
+      "description": "Ballpoint Pens - Box of 50",
+      "quantity": 5,
+      "unit": "BOX",
+      "unit_price": 18.00,
+      "amount": 90.00
+    },
+    {
+      "line_number": 3,
+      "description": "Stapler Heavy Duty",
+      "quantity": 2,
+      "unit": "EA",
+      "unit_price": 20.00,
+      "amount": 40.00
+    }
+  ],
+  "subtotal": 250.00,
+  "status": "approved"
+}

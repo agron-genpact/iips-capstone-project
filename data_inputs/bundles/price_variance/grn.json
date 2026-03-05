@@ -1,0 +1,16 @@
+{
+  "grn_number": "GRN-2004",
+  "grn_date": "2025-02-10",
+  "po_number": "PO-1004",
+  "vendor_name": "Delta Co",
+  "vendor_id": "V004",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Hydraulic Pump Assembly",
+      "quantity_received": 50,
+      "unit": "EA"
+    }
+  ],
+  "status": "completed"
+}

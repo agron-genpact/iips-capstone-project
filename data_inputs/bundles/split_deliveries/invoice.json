@@ -1,0 +1,23 @@
+{
+  "invoice_number": "INV-014",
+  "invoice_date": "2025-04-05",
+  "due_date": "2025-05-05",
+  "vendor_name": "Mu Logistics",
+  "vendor_id": "V014",
+  "po_number": "PO-1014",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Copper Wire Spools 500m",
+      "quantity": 100,
+      "unit": "EA",
+      "unit_price": 85.00,
+      "amount": 8500.00
+    }
+  ],
+  "subtotal": 8500.00,
+  "tax_rate": 18,
+  "tax_amount": 1530.00,
+  "total_amount": 10030.00
+}

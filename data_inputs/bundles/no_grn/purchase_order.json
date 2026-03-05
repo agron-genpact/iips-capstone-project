@@ -1,0 +1,27 @@
+{
+  "po_number": "PO-1002",
+  "po_date": "2025-01-20",
+  "vendor_name": "Beta Industries",
+  "vendor_id": "V002",
+  "currency": "USD",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Industrial Bearings",
+      "quantity": 200,
+      "unit": "EA",
+      "unit_price": 12.00,
+      "amount": 2400.00
+    },
+    {
+      "line_number": 2,
+      "description": "Lubricant Drums",
+      "quantity": 10,
+      "unit": "DRUM",
+      "unit_price": 80.00,
+      "amount": 800.00
+    }
+  ],
+  "subtotal": 3200.00,
+  "status": "approved"
+}

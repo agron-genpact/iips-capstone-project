@@ -1,0 +1,16 @@
+{
+  "grn_number": "GRN-3001",
+  "grn_date": "2025-03-25",
+  "po_number": "PO-1014",
+  "vendor_name": "Mu Logistics",
+  "vendor_id": "V014",
+  "line_items": [
+    {
+      "line_number": 1,
+      "description": "Copper Wire Spools 500m",
+      "quantity_received": 60,
+      "unit": "EA"
+    }
+  ],
+  "status": "completed"
+}
