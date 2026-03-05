@@ -10,7 +10,7 @@ import pytest
 from src.pipeline import Pipeline
 from src.schemas.models import DecisionAction, MatchStatus, MatchType
 
-BUNDLES_DIR = Path(__file__).parent / "bundles"
+BUNDLES_DIR = Path(__file__).parent.parent / "data_inputs" / "bundles"
 RUNS_DIR = Path(__file__).parent.parent / "test_runs"
 
 
