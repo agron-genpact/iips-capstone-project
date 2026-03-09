@@ -15,6 +15,12 @@ class Policy:
     def __init__(self, path: str | Path | None = None):
         self._data = load_yaml(path or _DEFAULT_POLICY_PATH)
 
+    def apply_overrides(self, overrides: dict[str, Any] | None) -> None:
+        """Merge runtime overrides into the active policy config."""
+        if not overrides:
+            return
+        self._data = self._deep_merge(self._data, overrides)
+
     def get(self, dotted_key: str, default: Any = None) -> Any:
         """Get a nested value using dot notation, e.g. 'tolerance.quantity_percent'."""
         keys = dotted_key.split(".")
@@ -27,6 +33,17 @@ class Policy:
             if val is None:
                 return default
         return val
+
+    def _deep_merge(self, base: Any, override: Any) -> Any:
+        if isinstance(base, dict) and isinstance(override, dict):
+            merged = dict(base)
+            for key, value in override.items():
+                if key in merged:
+                    merged[key] = self._deep_merge(merged[key], value)
+                else:
+                    merged[key] = value
+            return merged
+        return override
 
     # ── Shortcuts ──────────────────────────────────────────────────────
 
@@ -101,3 +118,31 @@ class Policy:
     @property
     def anomaly_just_under_pct(self) -> float:
         return float(self.get("anomaly_detection.just_under_threshold_percent", 5.0))
+
+    @property
+    def non_po_routing(self) -> str:
+        return str(self.get("matching.non_po_routing", "manager")).strip().lower()
+
+    @property
+    def mask_bank_details_in_logs(self) -> bool:
+        return bool(self.get("privacy.mask_bank_details_in_logs", True))
+
+    @property
+    def mask_tax_ids_in_logs(self) -> bool:
+        return bool(self.get("privacy.mask_tax_ids_in_logs", True))
+
+    @property
+    def mask_sensitive_artifacts(self) -> bool:
+        return bool(self.get("privacy.mask_sensitive_artifacts", True))
+
+    @property
+    def strict_reproducibility(self) -> bool:
+        return bool(self.get("reproducibility.strict_mode", False))
+
+    @property
+    def privacy_mask_config(self) -> dict[str, bool]:
+        return {
+            "mask_bank_details_in_logs": self.mask_bank_details_in_logs,
+            "mask_tax_ids_in_logs": self.mask_tax_ids_in_logs,
+            "mask_sensitive_artifacts": self.mask_sensitive_artifacts,
+        }

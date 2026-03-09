@@ -24,6 +24,7 @@ class ComplianceAgent(BaseAgent):
     name = "agent_f_compliance"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting compliance validation")
         invoice = context.get("extracted_invoice")
         packet = context.get("context_packet")
@@ -54,6 +55,7 @@ class ComplianceAgent(BaseAgent):
         save_json(
             {"compliance_checked": True, "findings_count": len(self.findings)},
             self.run_dir / "compliance_result.json",
+            mask_config=self.policy.privacy_mask_config,
         )
 
         self.log(f"Compliance check complete – {len(self.findings)} findings")

@@ -27,6 +27,7 @@ class MatchingAgent(BaseAgent):
     name = "agent_e_matching"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting matching engine")
         invoice: ExtractedInvoice | None = context.get("extracted_invoice")
         packet = context.get("context_packet")
@@ -59,10 +60,15 @@ class MatchingAgent(BaseAgent):
                     confidence=1.0,
                     title="No purchase order for matching",
                     description="Invoice has no associated PO and policy requires PO matching",
-                    recommendation="Route for non-PO invoice approval",
+                    evidence=[EvidencePointer(source_file=invoice.evidence[0].source_file if invoice.evidence else "invoice", field="po_number")],
+                    recommendation=f"Route according to non-PO routing policy ({self.policy.non_po_routing}).",
                 ))
             result.findings = list(self.findings)
-            save_json(result, self.run_dir / "match_result.json")
+            save_json(
+                result,
+                self.run_dir / "match_result.json",
+                mask_config=self.policy.privacy_mask_config,
+            )
             context["match_result"] = result
             return context
 
@@ -83,10 +89,15 @@ class MatchingAgent(BaseAgent):
                 confidence=1.0,
                 title="PO not found",
                 description=f"No PO matches invoice PO ref '{invoice.po_number}'",
+                evidence=[EvidencePointer(source_file=invoice.evidence[0].source_file if invoice.evidence else "invoice", field="po_number", text_snippet=str(invoice.po_number or ""))],
                 recommendation="Verify PO number and resubmit",
             ))
             result.findings = list(self.findings)
-            save_json(result, self.run_dir / "match_result.json")
+            save_json(
+                result,
+                self.run_dir / "match_result.json",
+                mask_config=self.policy.privacy_mask_config,
+            )
             context["match_result"] = result
             return context
 
@@ -104,11 +115,12 @@ class MatchingAgent(BaseAgent):
                 self.add_finding(Finding(
                     agent=self.name,
                     category=ExceptionCategory.MISSING_GRN,
-                    severity=Severity.WARNING,
+                    severity=Severity.ERROR,
                     confidence=1.0,
                     title="No GRN for 3-way matching",
                     description="GRN required for goods invoices but none found",
-                    recommendation="Obtain goods receipt confirmation before payment",
+                    evidence=[EvidencePointer(source_file=invoice.evidence[0].source_file if invoice.evidence else "invoice", field="po_number", text_snippet=str(po.po_number))],
+                    recommendation="Route for receipt confirmation before payment",
                 ))
 
         # Perform line-level matching
@@ -144,6 +156,7 @@ class MatchingAgent(BaseAgent):
                     f"Invoice total ({total_invoice}) vs PO total ({total_po}): "
                     f"variance {total_variance} ({total_variance_pct}%)"
                 ),
+                evidence=[EvidencePointer(source_file=invoice.evidence[0].source_file if invoice.evidence else "invoice", field="total_amount", text_snippet=str(total_invoice))],
                 data={"invoice_total": total_invoice, "po_total": total_po,
                       "variance": total_variance, "variance_pct": total_variance_pct},
                 recommendation="Review pricing and approve variance",
@@ -165,7 +178,11 @@ class MatchingAgent(BaseAgent):
             summary=self._build_summary(overall_status, match_type, line_matches),
         )
 
-        save_json(result, self.run_dir / "match_result.json")
+        save_json(
+            result,
+            self.run_dir / "match_result.json",
+            mask_config=self.policy.privacy_mask_config,
+        )
         context["match_result"] = result
         self.log(f"Matching complete: {overall_status.value}")
         return context

@@ -19,6 +19,7 @@ class AnomalyDetectionAgent(BaseAgent):
     name = "agent_g_anomaly"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting anomaly detection")
         invoice = context.get("extracted_invoice")
 
@@ -41,6 +42,7 @@ class AnomalyDetectionAgent(BaseAgent):
         save_json(
             {"anomaly_checked": True, "findings_count": len(self.findings)},
             self.run_dir / "anomaly_result.json",
+            mask_config=self.policy.privacy_mask_config,
         )
 
         self.log(f"Anomaly detection complete – {len(self.findings)} findings")
@@ -50,8 +52,54 @@ class AnomalyDetectionAgent(BaseAgent):
         """Check for duplicate invoices by comparing key attributes."""
         # Look for prior invoices in the run context or a history file
         history = context.get("invoice_history", [])
+        history_source = context.get("invoice_history_source") or "invoice_history.json"
 
         for prior in history:
+            prior_total = prior.get("total_amount")
+            try:
+                prior_total_val = float(prior_total) if prior_total is not None else None
+            except (TypeError, ValueError):
+                prior_total_val = None
+            exact_duplicate = (
+                bool(invoice.invoice_number)
+                and bool(invoice.vendor_name)
+                and invoice.total_amount is not None
+                and prior_total_val is not None
+                and str(invoice.invoice_number).strip() == str(prior.get("invoice_number", "")).strip()
+                and str(invoice.vendor_name).strip().lower() == str(prior.get("vendor_name", "")).strip().lower()
+                and float(invoice.total_amount) == prior_total_val
+            )
+            if exact_duplicate:
+                self.add_finding(Finding(
+                    agent=self.name,
+                    category=ExceptionCategory.DUPLICATE,
+                    severity=Severity.CRITICAL,
+                    confidence=1.0,
+                    title="Exact duplicate invoice detected",
+                    description=(
+                        f"Invoice '{invoice.invoice_number}' matches prior invoice on "
+                        "invoice number, vendor, and total amount."
+                    ),
+                    evidence=[EvidencePointer(
+                        source_file=str(history_source),
+                        field="duplicate_key",
+                        text_snippet=(
+                            f"{invoice.invoice_number}|{invoice.vendor_name}|{invoice.total_amount}"
+                        ),
+                    )],
+                    data={
+                        "current_invoice": invoice.invoice_number,
+                        "prior_invoice": prior.get("invoice_number"),
+                        "duplicate_key": [
+                            invoice.invoice_number,
+                            invoice.vendor_name,
+                            invoice.total_amount,
+                        ],
+                    },
+                    recommendation="Stop posting and investigate duplicate payment risk.",
+                ))
+                continue
+
             similarity = self._compute_similarity(invoice, prior)
             if similarity >= self.policy.duplicate_similarity_threshold:
                 self.add_finding(Finding(
