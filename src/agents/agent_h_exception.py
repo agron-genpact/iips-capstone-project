@@ -17,6 +17,7 @@ class ExceptionTriageAgent(BaseAgent):
     name = "agent_h_exception"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting exception triage")
         invoice = context.get("extracted_invoice")
         all_findings = context.get("all_findings", [])
@@ -40,8 +41,8 @@ class ExceptionTriageAgent(BaseAgent):
         # Determine approver
         approver_role = self._determine_approver(invoice, all_findings)
 
-        # Determine recommended action
-        action = self._determine_action(invoice, critical, errors, warnings)
+        # Decision source of truth is orchestrator; triage only prepares review packet.
+        action = DecisionAction.MANUAL_REVIEW
 
         # Build follow-up actions
         follow_ups = self._build_follow_ups(all_findings)
@@ -69,13 +70,21 @@ class ExceptionTriageAgent(BaseAgent):
         )
 
         # Save artifacts
-        save_json(packet, self.run_dir / "approval_packet.json")
+        save_json(
+            packet,
+            self.run_dir / "approval_packet.json",
+            mask_config=self.policy.privacy_mask_config,
+        )
 
         # Generate human-readable exceptions markdown
         exceptions_md = self._generate_exceptions_markdown(
             invoice, all_findings, packet
         )
-        save_markdown(exceptions_md, self.run_dir / "exceptions.md")
+        save_markdown(
+            exceptions_md,
+            self.run_dir / "exceptions.md",
+            mask_config=self.policy.privacy_mask_config,
+        )
 
         context["approval_packet"] = packet
         self.log(f"Exception triage complete – action: {action.value}")
@@ -84,6 +93,12 @@ class ExceptionTriageAgent(BaseAgent):
     def _determine_approver(self, invoice, findings: list[Finding]) -> str:
         """Determine who should approve based on amount and findings."""
         amount = invoice.total_amount or 0
+
+        has_missing_po = any(f.category == ExceptionCategory.MISSING_PO for f in findings)
+        if has_missing_po:
+            route = self.policy.non_po_routing
+            if route in ("manager", "director"):
+                return route
 
         # Critical findings always need director
         has_critical = any(f.severity == Severity.CRITICAL for f in findings)
@@ -102,35 +117,6 @@ class ExceptionTriageAgent(BaseAgent):
             return "manager"
 
         return "auto"
-
-    def _determine_action(
-        self,
-        invoice,
-        critical: list[Finding],
-        errors: list[Finding],
-        warnings: list[Finding],
-    ) -> DecisionAction:
-        """Determine recommended processing action."""
-        if critical:
-            # Bank change or fraud -> hold
-            has_fraud = any(
-                f.category in (ExceptionCategory.BANK_CHANGE, ExceptionCategory.DUPLICATE)
-                for f in critical
-            )
-            if has_fraud:
-                return DecisionAction.HOLD
-            return DecisionAction.REJECT
-
-        if errors:
-            return DecisionAction.ROUTE_FOR_APPROVAL
-
-        if warnings:
-            amount = invoice.total_amount or 0
-            if amount <= self.policy.auto_approve_max:
-                return DecisionAction.APPROVE_AND_POST
-            return DecisionAction.ROUTE_FOR_APPROVAL
-
-        return DecisionAction.AUTO_POST
 
     def _build_follow_ups(self, findings: list[Finding]) -> list[str]:
         """Build list of follow-up actions from findings."""

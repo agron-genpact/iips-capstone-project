@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import uuid
 from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 
@@ -76,7 +78,7 @@ class EvidencePointer(BaseModel):
 
 
 class Finding(BaseModel):
-    finding_id: str = Field(default_factory=lambda: str(uuid.uuid4())[:8])
+    finding_id: Optional[str] = None
     agent: str
     category: ExceptionCategory
     severity: Severity
@@ -87,6 +89,27 @@ class Finding(BaseModel):
     recommendation: Optional[str] = None
     open_questions: list[str] = Field(default_factory=list)
     data: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def ensure_finding_id(self) -> "Finding":
+        if self.finding_id:
+            return self
+        payload = {
+            "agent": self.agent,
+            "category": self.category.value,
+            "severity": self.severity.value,
+            "title": self.title,
+            "description": self.description,
+            "evidence": [e.model_dump() for e in self.evidence],
+            "recommendation": self.recommendation,
+            "open_questions": self.open_questions,
+            "data": self.data,
+        }
+        digest = hashlib.sha1(
+            json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        ).hexdigest()
+        self.finding_id = digest[:8]
+        return self
 
 
 
@@ -306,10 +329,14 @@ class RunMetrics(BaseModel):
     line_items_extracted: int = 0
     extraction_confidence_avg: float = 0.0
     extraction_confidence_min: float = 0.0
+    extraction_field_accuracy: float = 0.0
     findings_total: int = 0
     findings_by_severity: dict[str, int] = Field(default_factory=dict)
     findings_by_category: dict[str, int] = Field(default_factory=dict)
     match_status: str = ""
+    matching_line_precision: float = 0.0
+    matching_lines_total: int = 0
+    matching_lines_matched: int = 0
     decision: str = ""
     exceptions_count: int = 0
     auto_posted: bool = False

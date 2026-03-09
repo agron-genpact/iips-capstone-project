@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -54,6 +55,7 @@ class ExtractionAgent(BaseAgent):
         return None
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         packet = context["context_packet"]
         self.log("Starting extraction")
 
@@ -69,6 +71,7 @@ class ExtractionAgent(BaseAgent):
 
         doc = invoice_docs[0]
         fpath = Path(doc.file_path)
+        self.set_default_evidence_source(str(fpath))
         self.log(f"Extracting from: {fpath.name}")
 
         if fpath.suffix.lower() == ".json":
@@ -83,11 +86,19 @@ class ExtractionAgent(BaseAgent):
 
         self._check_extraction_quality(invoice, fpath)
 
-        save_json(invoice, self.run_dir / "extracted_invoice.json")
+        save_json(
+            invoice,
+            self.run_dir / "extracted_invoice.json",
+            mask_config=self.policy.privacy_mask_config,
+        )
 
+        rows = [item.model_dump() for item in invoice.line_items]
+        save_csv(
+            rows,
+            self.run_dir / "line_items.csv",
+            mask_config=self.policy.privacy_mask_config,
+        )
         if invoice.line_items:
-            rows = [item.model_dump() for item in invoice.line_items]
-            save_csv(rows, self.run_dir / "line_items.csv")
             self.log(f"Extracted {len(invoice.line_items)} line items")
 
         context["extracted_invoice"] = invoice
@@ -199,8 +210,35 @@ class ExtractionAgent(BaseAgent):
             from PIL import Image
         except ImportError:
             self.log("pytesseract/PIL not available – falling back to empty extraction")
+            self.add_finding(Finding(
+                agent=self.name,
+                category=ExceptionCategory.LOW_CONFIDENCE,
+                severity=Severity.ERROR,
+                confidence=0.0,
+                title="Image OCR dependencies unavailable",
+                description="Image extraction could not run because `pytesseract` or `Pillow` is missing.",
+                evidence=[EvidencePointer(source_file=str(fpath), field="ocr_dependencies")],
+                recommendation="Install dependencies with `pip install pytesseract Pillow`.",
+            ))
             return ExtractedInvoice(
                 evidence=[EvidencePointer(source_file=str(fpath), field="ocr_failed")],
+                confidence_scores={"overall": 0.0},
+            )
+
+        if shutil.which("tesseract") is None:
+            self.log("Tesseract binary not found on PATH – image OCR skipped")
+            self.add_finding(Finding(
+                agent=self.name,
+                category=ExceptionCategory.LOW_CONFIDENCE,
+                severity=Severity.ERROR,
+                confidence=0.0,
+                title="Tesseract OCR binary missing",
+                description="Image extraction skipped because the `tesseract` executable is not available.",
+                evidence=[EvidencePointer(source_file=str(fpath), field="ocr_binary")],
+                recommendation="Install Tesseract and ensure `tesseract --version` works on PATH.",
+            ))
+            return ExtractedInvoice(
+                evidence=[EvidencePointer(source_file=str(fpath), field="ocr_unavailable")],
                 confidence_scores={"overall": 0.0},
             )
 
@@ -248,8 +286,28 @@ class ExtractionAgent(BaseAgent):
             text = "\n".join(full_text_lines)
 
             self.log(f"Collected {len(word_boxes)} word bounding boxes from OCR")
+        except pytesseract.TesseractNotFoundError:
+            self.log("Tesseract OCR executable is unavailable at runtime")
+            self.add_finding(Finding(
+                agent=self.name,
+                category=ExceptionCategory.LOW_CONFIDENCE,
+                severity=Severity.ERROR,
+                confidence=0.0,
+                title="Tesseract OCR runtime unavailable",
+                description="Image OCR failed because the Tesseract binary was not found at runtime.",
+                evidence=[EvidencePointer(source_file=str(fpath), field="ocr_runtime")],
+                recommendation="Install Tesseract and restart the process.",
+            ))
+            return ExtractedInvoice(
+                evidence=[EvidencePointer(source_file=str(fpath), field="ocr_unavailable")],
+                confidence_scores={"overall": 0.0},
+            )
         except Exception:
-            text = pytesseract.image_to_string(img)
+            self.log("OCR word-box extraction failed; falling back to plain OCR text")
+            try:
+                text = pytesseract.image_to_string(img)
+            except Exception:
+                text = ""
             word_boxes = []
 
         invoice = ExtractedInvoice()

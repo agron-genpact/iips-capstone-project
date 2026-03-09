@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import importlib.util
 import logging
+import shutil
 import sys
 from pathlib import Path
 
@@ -14,6 +16,8 @@ from src.pipeline import Pipeline
 from src.utils.file_utils import load_json
 
 console = Console()
+_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp"}
+_PDF_EXTS = {".pdf"}
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -37,16 +41,20 @@ def main():
 @click.option("--policy", "-p", default=None, help="Path to policy YAML file")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
 def process(bundle_path: str, output: str, policy: str | None, verbose: bool):
-    """Process an invoice bundle through the full pipeline."""
+    """Process an invoice bundle or a single invoice file through the full pipeline."""
     setup_logging(verbose)
+    input_path = Path(bundle_path)
 
     console.print(Panel.fit(
         "[bold blue]IIPS – Intelligent Invoice Processing System[/bold blue]\n"
-        f"Bundle: {bundle_path}",
+        f"Input: {bundle_path}",
         border_style="blue",
     ))
 
     try:
+        preflight = _run_preflight_checks(input_path)
+        _display_preflight(preflight)
+
         pipeline = Pipeline(
             bundle_path=bundle_path,
             output_dir=output,
@@ -105,12 +113,12 @@ def inspect(run_dir: str):
 @click.option("--output", "-o", default="runs", help="Output directory")
 def list_runs(output: str):
     """List all pipeline runs."""
-    runs_dir = Path(output)
+    runs_dir = Path(output) / "runs"
     if not runs_dir.exists():
-        console.print("[yellow]No runs directory found.[/yellow]")
+        console.print(f"[yellow]No runs directory found at {runs_dir}.[/yellow]")
         return
 
-    runs = sorted(runs_dir.iterdir())
+    runs = sorted(p for p in runs_dir.iterdir() if p.is_dir())
     if not runs:
         console.print("[yellow]No runs found.[/yellow]")
         return
@@ -121,8 +129,6 @@ def list_runs(output: str):
     table.add_column("Artifacts", style="yellow")
 
     for run_path in runs:
-        if not run_path.is_dir():
-            continue
         artifacts = len(list(run_path.glob("*")))
         decision = "N/A"
         decision_path = run_path / "final_decision.json"
@@ -190,6 +196,54 @@ def _display_results(context: dict, run_dir: Path) -> None:
         console.print(f"   {artifact.name}")
 
     console.print()
+
+
+def _run_preflight_checks(input_path: Path) -> list[str]:
+    """Check runtime dependencies and return actionable messages."""
+    messages: list[str] = []
+    candidates = _collect_candidate_files(input_path)
+    has_images = any(p.suffix.lower() in _IMAGE_EXTS for p in candidates)
+    has_pdfs = any(p.suffix.lower() in _PDF_EXTS for p in candidates)
+
+    if has_pdfs and importlib.util.find_spec("pdfplumber") is None:
+        messages.append("PDF parsing dependency missing: install with `pip install pdfplumber`.")
+
+    if has_images:
+        missing = [dep for dep in ("pytesseract", "PIL") if importlib.util.find_spec(dep) is None]
+        if missing:
+            messages.append(
+                "Image OCR Python dependencies missing: install with `pip install pytesseract Pillow`."
+            )
+        if shutil.which("tesseract") is None:
+            messages.append(
+                "Tesseract binary not found on PATH. Install Tesseract "
+                "(macOS: `brew install tesseract`, Ubuntu: `sudo apt-get install tesseract-ocr`) "
+                "and verify with `tesseract --version`."
+            )
+
+    return messages
+
+
+def _collect_candidate_files(input_path: Path) -> list[Path]:
+    if input_path.is_file():
+        return [input_path]
+    if not input_path.exists() or not input_path.is_dir():
+        return []
+    return [p for p in input_path.iterdir() if p.is_file()]
+
+
+def _display_preflight(messages: list[str]) -> None:
+    if not messages:
+        return
+    body = "\n".join(f"- {msg}" for msg in messages)
+    console.print(
+        Panel.fit(
+            f"[yellow]Preflight checks found optional dependency gaps:[/yellow]\n{body}\n\n"
+            "The pipeline will continue, but extraction quality may be degraded.",
+            border_style="yellow",
+            title="Preflight",
+        )
+    )
 
 
 if __name__ == "__main__":

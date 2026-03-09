@@ -17,6 +17,7 @@ class ValidationAgent(BaseAgent):
     name = "agent_d_validation"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting validation and normalization")
         invoice = context.get("extracted_invoice")
 
@@ -46,6 +47,7 @@ class ValidationAgent(BaseAgent):
         save_json(
             {"validated": True, "findings_count": len(self.findings)},
             self.run_dir / "validation_result.json",
+            mask_config=self.policy.privacy_mask_config,
         )
 
         self.log(f"Validation complete – {len(self.findings)} findings")

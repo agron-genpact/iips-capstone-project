@@ -46,3 +46,7 @@ ocr:
 privacy:
   mask_bank_details_in_logs: true
   mask_tax_ids_in_logs: true
+  mask_sensitive_artifacts: true
+
+reproducibility:
+  strict_mode: false

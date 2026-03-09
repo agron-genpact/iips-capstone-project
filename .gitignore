@@ -7,6 +7,9 @@ __pycache__/
 venv/
 runs/*/
 test_runs/
+sample_pdf_runs/
+manual_runs/
+req_runs/
 output/
 *.egg-info/
 dist/

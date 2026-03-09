@@ -47,6 +47,7 @@ class IntakeAgent(BaseAgent):
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
         bundle_path = Path(context["bundle_path"])
+        self.set_default_evidence_source(str(bundle_path))
         self.log(f"Starting intake from bundle: {bundle_path}")
 
         # Load manifest if present
@@ -56,12 +57,26 @@ class IntakeAgent(BaseAgent):
         documents = self._discover_documents(bundle_path, manifest)
         self.log(f"Discovered {len(documents)} documents")
 
+        # Load optional per-bundle approval policy overrides.
+        policy_overrides = self._load_policy_overrides(documents)
+        if policy_overrides:
+            context["policy_overrides"] = policy_overrides
+            self.log("Loaded approval policy overrides from bundle")
+
         # Extract key references
         vendor_candidates = []
         po_refs = []
         grn_refs = []
         risk_indicators = []
         evidence_index = []
+
+        # Universal baseline index: one pointer per discovered document.
+        for doc in documents:
+            evidence_index.append(EvidencePointer(
+                source_file=doc.file_path,
+                field="document_type",
+                text_snippet=doc.document_type.value,
+            ))
 
         for doc in documents:
             self._extract_references(doc, vendor_candidates, po_refs, grn_refs,
@@ -72,6 +87,8 @@ class IntakeAgent(BaseAgent):
         packet_kwargs = {}
         if run_id:
             packet_kwargs["run_id"] = run_id
+        if context.get("strict_reproducibility"):
+            packet_kwargs["timestamp"] = "2000-01-01T00:00:00+00:00"
         packet = ContextPacket(
             **packet_kwargs,
             bundle_path=str(bundle_path),
@@ -95,7 +112,11 @@ class IntakeAgent(BaseAgent):
             self.log("RISK: No GRN found in bundle")
 
         # Save artifacts
-        save_json(packet, self.run_dir / "context_packet.json")
+        save_json(
+            packet,
+            self.run_dir / "context_packet.json",
+            mask_config=self.policy.privacy_mask_config,
+        )
         self.log("Context packet saved")
 
         context["context_packet"] = packet
@@ -104,6 +125,10 @@ class IntakeAgent(BaseAgent):
 
     def _load_manifest(self, bundle_path: Path) -> dict:
         """Load manifest.yaml if it exists in the bundle."""
+        if bundle_path.is_file():
+            self.log("Single-file intake detected – manifest lookup skipped")
+            return {}
+
         manifest_path = bundle_path / "manifest.yaml"
         if manifest_path.exists():
             with open(manifest_path) as f:
@@ -120,6 +145,14 @@ class IntakeAgent(BaseAgent):
     def _discover_documents(self, bundle_path: Path, manifest: dict) -> list[DocumentEntry]:
         """Find and classify all documents in the bundle."""
         documents = []
+
+        if bundle_path.is_file():
+            doc_type = self._classify_file(bundle_path)
+            documents.append(DocumentEntry(
+                file_path=str(bundle_path),
+                document_type=doc_type,
+            ))
+            return documents
 
         # If manifest defines files, use that
         if "files" in manifest:
@@ -148,7 +181,8 @@ class IntakeAgent(BaseAgent):
     def _classify_file(self, fpath: Path) -> DocumentType:
         """Classify a file by its name."""
         name_lower = fpath.stem.lower()
-        for keyword, dtype in _TYPE_KEYWORDS.items():
+        # Prefer more specific keywords first (e.g., approval_policy before po).
+        for keyword, dtype in sorted(_TYPE_KEYWORDS.items(), key=lambda kv: len(kv[0]), reverse=True):
             if keyword in name_lower:
                 return dtype
         return DocumentType.UNKNOWN
@@ -192,13 +226,65 @@ class IntakeAgent(BaseAgent):
         for key in ("grn_number", "receipt_number"):
             if key in data and data[key]:
                 grn_refs.append(str(data[key]))
+                evidence_index.append(EvidencePointer(
+                    source_file=str(fpath), field=key, text_snippet=str(data[key])
+                ))
 
         # Vendor candidates
         for key in ("vendor_name", "supplier_name"):
             if key in data and data[key]:
                 vendor_candidates.append(str(data[key]))
+                evidence_index.append(EvidencePointer(
+                    source_file=str(fpath), field=key, text_snippet=str(data[key])
+                ))
+
+        # Additional common invoice evidence references.
+        for key in ("invoice_number", "invoice_date", "total_amount", "currency"):
+            if key in data and data[key] is not None:
+                evidence_index.append(EvidencePointer(
+                    source_file=str(fpath), field=key, text_snippet=str(data[key])
+                ))
 
         # Vendor ID
         if doc.document_type == DocumentType.INVOICE:
             if "vendor_id" not in data or not data.get("vendor_id"):
                 risk_indicators.append(f"invoice_missing_vendor_id:{fpath.name}")
+            else:
+                evidence_index.append(EvidencePointer(
+                    source_file=str(fpath),
+                    field="vendor_id",
+                    text_snippet=str(data.get("vendor_id")),
+                ))
+
+    def _load_policy_overrides(self, documents: list[DocumentEntry]) -> dict[str, Any]:
+        """Load and merge approval policy docs found in the bundle."""
+        merged: dict[str, Any] = {}
+        for doc in documents:
+            if doc.document_type != DocumentType.APPROVAL_POLICY:
+                continue
+            fpath = Path(doc.file_path)
+            if not fpath.exists() or not fpath.is_file():
+                continue
+            try:
+                if fpath.suffix.lower() == ".json":
+                    payload = load_json(fpath)
+                elif fpath.suffix.lower() in (".yaml", ".yml"):
+                    with open(fpath) as f:
+                        payload = yaml.safe_load(f) or {}
+                else:
+                    continue
+            except Exception:
+                continue
+
+            if isinstance(payload, dict):
+                merged = self._deep_merge_dicts(merged, payload)
+        return merged
+
+    def _deep_merge_dicts(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+        out = dict(base)
+        for key, value in override.items():
+            if key in out and isinstance(out[key], dict) and isinstance(value, dict):
+                out[key] = self._deep_merge_dicts(out[key], value)
+            else:
+                out[key] = value
+        return out

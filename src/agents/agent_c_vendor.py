@@ -21,6 +21,7 @@ class VendorResolutionAgent(BaseAgent):
     name = "agent_c_vendor"
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
+        self.set_default_evidence_from_context(context)
         self.log("Starting vendor resolution")
         invoice = context.get("extracted_invoice")
         packet = context.get("context_packet")
@@ -31,6 +32,11 @@ class VendorResolutionAgent(BaseAgent):
             return context
 
         # Load vendor master data
+        vendor_sources = [
+            str(Path(doc.file_path))
+            for doc in getattr(packet, "documents", [])
+            if doc.document_type == DocumentType.VENDOR_MASTER
+        ]
         vendors = self._load_vendor_master(packet)
         self.log(f"Loaded {len(vendors)} vendor records")
 
@@ -57,7 +63,7 @@ class VendorResolutionAgent(BaseAgent):
             context["vendor_resolved"] = resolved
 
             # Check for bank account changes
-            self._check_bank_account(invoice, resolved)
+            self._check_bank_account(invoice, resolved, vendor_sources[0] if vendor_sources else None)
 
             # Check vendor ID mismatch
             if invoice.vendor_id and invoice.vendor_id != resolved.vendor_id:
@@ -72,7 +78,7 @@ class VendorResolutionAgent(BaseAgent):
                         f"resolved vendor ID '{resolved.vendor_id}'"
                     ),
                     evidence=[EvidencePointer(
-                        source_file="vendor_master",
+                        source_file=vendor_sources[0] if vendor_sources else "vendor_master",
                         field="vendor_id",
                         text_snippet=f"Expected: {resolved.vendor_id}",
                     )],
@@ -116,6 +122,7 @@ class VendorResolutionAgent(BaseAgent):
              "match_score": match_score,
              "findings_count": len(self.findings)},
             self.run_dir / "vendor_resolution.json",
+            mask_config=self.policy.privacy_mask_config,
         )
         return context
 
@@ -167,17 +174,19 @@ class VendorResolutionAgent(BaseAgent):
             return best_match, best_score
         return None, best_score
 
-    def _check_bank_account(self, invoice, vendor: VendorRecord) -> None:
+    def _check_bank_account(
+        self,
+        invoice,
+        vendor: VendorRecord,
+        vendor_source_file: str | None,
+    ) -> None:
         """Check if bank account on invoice differs from master data."""
         if not invoice.vendor_bank_account or not vendor.bank_account:
             return
 
         if invoice.vendor_bank_account != vendor.bank_account:
             severity = Severity.CRITICAL
-            description = (
-                f"Bank account on invoice ({invoice.vendor_bank_account}) "
-                f"differs from vendor master ({vendor.bank_account})"
-            )
+            description = "Bank account on invoice differs from vendor master record."
 
             # Check if change is recent
             if vendor.bank_account_last_changed:
@@ -202,9 +211,9 @@ class VendorResolutionAgent(BaseAgent):
                 title="Bank account mismatch – possible fraud risk",
                 description=description,
                 evidence=[EvidencePointer(
-                    source_file="vendor_master",
+                    source_file=vendor_source_file or "vendor_master",
                     field="bank_account",
-                    text_snippet=f"Master: {vendor.bank_account}",
+                    text_snippet="Vendor master bank account on file",
                 )],
                 recommendation="Verify bank details directly with vendor before payment",
             ))
