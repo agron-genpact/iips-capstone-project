@@ -18,3 +18,5 @@ build/
 .mypy_cache/
 .DS_Store
 .vscode
+.ui_inputs
+ui_runs

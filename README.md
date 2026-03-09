@@ -77,6 +77,21 @@ List completed runs from `<output>/runs/*`:
 python -m src.cli list --output runs
 ```
 
+## Streamlit UI
+
+Run the browser UI:
+
+```bash
+streamlit run app.py
+```
+
+What you can do in the UI:
+
+- Upload and process a single invoice file (PDF/Image/JSON/YAML)
+- Run the pipeline against an existing local bundle or file path
+- Inspect previous runs under `ui_runs/runs/*`
+- Preview and download generated artifacts
+
 ## Startup Preflight Checks
 
 `process` now runs dependency preflight checks before execution and prints actionable messages.
