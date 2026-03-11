@@ -1,0 +1,14 @@
+approval_thresholds:
+  auto_approve_max: 5000.00
+  manager_approval_max: 50000.00
+
+tolerance:
+  quantity_percent: 5.0
+  price_percent: 10.0
+  total_percent: 10.0
+  absolute_max: 5000.00
+
+matching:
+  require_grn_for_goods: true
+  po_required: true
+  non_po_routing: "manager"
